@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <form id="OrdersForm">
+            <label>Choose Price: </label>
+            <input type="number" name="price" id="price" required>
+            <label>Choose Dish: </label>
+            <input type="text" name="dish" id="dish" required>
+            <label>Select Table: </label>
+            <select name="table" id="table">
+                <option>Table 1</option>
+                <option>Table 2</option>
+                <option>Table 3</option>
+            </select>
+            <button type="submit">Add Item</button>
+        </form>
+        <h3>Table 1</h3>
+        <ul id="table1"></ul>
+        <h3>Table 2</h3>
+        <ul id="table2"></ul>
+        <h3>Table 3</h3>
+        <ul id="table3"></ul>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.0/axios.min.js"></script>
+        <script>
+            document.getElementById('OrdersForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const price = event.target.price.value;
+                const dish = event.target.dish.value;
+                const table = event.target.table.value;
+                const order = `${price} - ${dish} - ${table}`;
+                const obj = { price, dish, table};
+
+                axios.post('https://crudcrud.com/api/211de6960c624c4db148ef095b56822a/orderList', obj)
+                .then((response) => {
+                    if(table === 'Table 1')
+                    {
+                        table1Orders(response.data._id, price, dish, table);
+                    }
+                    if(table === 'Table 2')
+                    {
+                        table2Orders(response.data._id, price, dish, table);
+                    }
+                    if(table === 'Table 3')
+                    {
+                        table3Orders(response.data._id, price, dish, table);
+                    }
+
+                    event.target.price.value = '';
+                    event.target.dish.value = '';
+                })
+                .catch((err) => {
+                    console.log(err);
+                })
+            });
+
+            window.addEventListener("DOMContentLoaded", () => {
+                axios.get('https://crudcrud.com/api/211de6960c624c4db148ef095b56822a/orderList')
+                .then((response) => {
+                    response.data.forEach((dish) => {
+                        if(dish.table === 'Table 1')
+                        {
+                            table1Orders(dish._id, dish.price, dish.dish, dish.table);
+                        }
+                        if(dish.table === 'Table 2')
+                        {
+                            table2Orders(dish._id, dish.price, dish.dish, dish.table);
+                        }
+                        if(dish.table === 'Table 3')
+                        {
+                            table3Orders(dish._id, dish.price, dish.dish, dish.table);
+                        }
+                    })
+                })    
+                .catch((err) => {
+                    console.log(err);
+                })
+            })
+
+            function table1Orders(dishId,price, dish, table) {
+                let childElem = document.createElement('li');
+                childElem.innerHTML = `${price} - ${dish} - ${table} 
+                                       <button class="edit" data-dish="${dishId}">Edit</button>
+                                       <button class="delete" data-dish="${dishId}">Delete</button>`;
+                let parentElem = document.getElementById('table1');
+                parentElem.appendChild(childElem);
+
+                const editButton = document.querySelectorAll('.edit');
+                editButton.forEach(button => {
+                    button.addEventListener('click', editItem);
+                })
+
+                const deleteButton = document.querySelectorAll('.delete');
+                deleteButton.forEach(button => {
+                    button.addEventListener('click', deleteItem);
+                })
+            }
+
+            function table2Orders(dishId,price, dish, table) {
+                let childElem = document.createElement('li');
+                childElem.innerHTML = `${price} - ${dish} - ${table} 
+                                       <button class="edit" data-dish="${dishId}">Edit</button>
+                                       <button class="delete" data-dish="${dishId}">Delete</button>`;
+                let parentElem = document.getElementById('table2');
+                parentElem.appendChild(childElem);
+
+                const editButton = document.querySelectorAll('.edit');
+                editButton.forEach(button => {
+                    button.addEventListener('click', editItem);
+                })
+
+                const deleteButton = document.querySelectorAll('.delete');
+                deleteButton.forEach(button => {
+                    button.addEventListener('click', deleteItem);
+                })
+            }
+
+            function table3Orders(dishId,price, dish, table) {
+                let childElem = document.createElement('li');
+                childElem.innerHTML = `${price} - ${dish} - ${table} 
+                                       <button class="edit" data-dish="${dishId}">Edit</button>
+                                       <button class="delete" data-dish="${dishId}">Delete</button>`;
+                let parentElem = document.getElementById('table3');
+                parentElem.appendChild(childElem);
+
+                const editButton = document.querySelectorAll('.edit');
+                editButton.forEach(button => {
+                    button.addEventListener('click', editItem);
+                })
+
+                const deleteButton = document.querySelectorAll('.delete');
+                deleteButton.forEach(button => {
+                    button.addEventListener('click', deleteItem);
+                })
+            }
+
+            function editItem(event) {
+                const dishToEdit = event.target.getAttribute('data-dish');
+                axios.get(`https://crudcrud.com/api/211de6960c624c4db148ef095b56822a/orderList/${dishToEdit}`)
+                .then((response) => {
+                    const { price, dish, table} = response.data;
+                    const priceInput = document.querySelector('input[name="price"]');
+                    const dishInput = document.querySelector('input[name="dish"]');
+                    const tableSelect = document.querySelector('select[name="table"]');
+                    priceInput.value = price;
+                    dishInput.value = dish;
+                    tableSelect.value = table;
+
+                    deleteItem(event);
+                    const orderListItem = event.target.parentElement;
+                    orderListItem.remove();
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+            }
+
+            function deleteItem(event) {
+                const itemToDelete = event.target.getAttribute('data-dish');
+                axios.delete(`https://crudcrud.com/api/211de6960c624c4db148ef095b56822a/orderList/${itemToDelete}`)
+                .then(() => {
+                    event.target.parentElement.remove();
+                })
+                .catch((err) => {
+                    console.log(err);
+                })
+            }
+        </script>
+    </body>
+</html>
+
+
+ 
